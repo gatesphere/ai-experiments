@@ -24,25 +24,12 @@ Lambda := Object clone do(
   )
   
   with := method(arg, map,
-    self clone setArg(arg) setMap(Lambda value(map))
-  )
-  
-  value := method(map,
-    self clone setArg(nil) setMap(map)
-  )
-  
-  asCode := method(
-    writeln("  asCode: #{arg} ==> #{map asCode}" interpolate)
-    if(arg != nil,
-      "{#{arg}, #{map asCode}}" interpolate
-      ,
-      self asString
-    )
+    self clone setArg(arg) setMap(map)
   )
   
   asString := method(
     if(arg != nil,
-      "(\\#{arg}.#{map})" interpolate
+      "(\\\\#{arg}.#{map})" interpolate
       ,
       "#{map}" interpolate
     )
@@ -50,21 +37,20 @@ Lambda := Object clone do(
   
   expand := method(message,
     m := nil
-    if(message type != "Sequence", m = (message name .. message next), m = message)
-    m = m asMutable removeSeq(" ") replaceMap(Map clone atPut("squareBrackets(", "[") atPut(")", "]"))
-    Lambda value(m)
+    ex := try(m = message doInContext(Lobby))
+    if(ex != nil,
+      m = Lambda with(nil, 
+        (message name .. message next) asMutable removeSeq(" ") replaceMap(Map clone atPut("squareBrackets(", "[") atPut(")", "]"))
+      )
+    )
+    //writeln("expanded " .. message .. " to " .. m .. " exception: " .. ex)
+    m
   )
     
   apply := method(lambda,
-    ex := try(lambda = lambda doInContext(Lobby))
-    if(ex == nil,
-      writeln(self .. " applying " .. lambda)
-      newArg := self map arg
-      newMap := self map map asCode asMutable replaceSeq(self arg asString, lambda asCode)
-      Lambda with(newArg, Lambda expand(newMap))
-      ,
-      writeln(lambda .. " is undefined.")
-    )
+    // tbd
+    writeln(self .. " applying " .. lambda)
+    lambda
   )
 )
 
@@ -79,9 +65,6 @@ three := {s, {z, s[s[s[z]]]}}
 
 succ := {w, {y, {x, y[w[y][x]]}}}
 
-
-writeln("succ asString: #{succ asString}" interpolate)
-writeln("succ asCode: #{succ asCode}" interpolate)
 
 writeln("attempting to add: 2+3 == two[succ][three]")
 writeln(two[succ][three])
