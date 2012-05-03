@@ -27,9 +27,17 @@ Lambda := Object clone do(
     self clone setArg(arg) setMap(map)
   )
   
+  asCode := method(
+    if(arg != nil,
+      "{#{arg}, #{map asCode}}" interpolate
+      ,
+      self asString
+    )
+  )
+  
   asString := method(
     if(arg != nil,
-      "(\\\\#{arg}.#{map})" interpolate
+      "(\\#{arg}.#{map})" interpolate
       ,
       "#{map}" interpolate
     )
@@ -65,6 +73,8 @@ three := {s, {z, s[s[s[z]]]}}
 
 succ := {w, {y, {x, y[w[y][x]]}}}
 
+writeln("succ asString: " .. succ asString)
+writeln("succ asCode: " .. succ asCode)
 
 writeln("attempting to add: 2+3 == two[succ][three]")
 writeln(two[succ][three])
