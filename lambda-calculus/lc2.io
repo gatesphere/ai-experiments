@@ -9,6 +9,7 @@ List asString := method(
   "{ ".. self join(", ") .. " }"
 )
 
+// destructive
 List rewrite := method(a, b,
   //writeln("a: " .. a)
   //writeln("b: " .. b)
@@ -41,6 +42,26 @@ List applyLambda := method(lambda,
   new_lambda
 )
 
+// destructive
+List reduceBrackets := method(
+  self foreach(i, x,
+    if(x isKindOf(SymbolList) and x size <= 1,
+      self atPut(i, x first)
+    )
+  )
+  self
+)
+
+List betaReduce := method(
+  self foreach(i, x,
+    if(x isKindOf(SymbolList),
+      writeln("b-reduce: " .. x)
+      self atPut(i, x betaReduce)
+    )
+  )
+)
+  
+
 SymbolList := List clone do(
   asString := method(
     "[ " .. self join(", ") .. " ]"
@@ -56,6 +77,28 @@ SymbolList := List clone do(
   
   copy := method(
     SymbolList with(self)
+  )
+  
+  reduceBrackets := method(
+    if(self size <= 1, self first, self)
+  )
+  
+  betaReduce := method(
+    n := self copy
+    m := nil
+    if(n size > 1,
+      if(n first isKindOf(List),
+        m = n first applyLambda(n second)
+      )
+      if(n size > 2,
+        writeln("++++ LARGE")
+        for(i, 2, n size,
+          m append n at(i)
+        )
+      )
+    )
+    //m reduceBrackets
+    m
   )
   
   /*
@@ -95,6 +138,13 @@ writeln("two: " .. two)
 two rewrite(:s, :a) rewrite(:z, :b)
 writeln("two, rewritten: " .. two)
 writeln("succ: " .. succ)
+
+t := {:x, {:y, [:x]}}
+f := {:x, {:y, [:y]}}
+
+i := {:i, [:i]}
+writeln("i: " .. i)
+//writeln("i reduceBrackets: " .. i reduceBrackets)
 
 /*
 writeln("id: one: " .. one uniqueId)
