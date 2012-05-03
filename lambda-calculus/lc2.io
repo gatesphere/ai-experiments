@@ -10,13 +10,11 @@ List asString := method(
 )
 
 List rewrite := method(a, b,
-  /*
-  writeln("a: " .. a)
-  writeln("b: " .. b)
+  //writeln("a: " .. a)
+  //writeln("b: " .. b)
   writeln("self: " .. self)
-  writeln("self first: " .. self first .. " " .. self first == a)
-  writeln("self second: " .. self second)
-  */
+  //writeln("self first: " .. self first .. " " .. self first == a)
+  //writeln("self second: " .. self second)
   //writeln("operating on uniqueId: " .. self uniqueId)
   if(self first == a, self atPut(0, b))
   if(self second isKindOf(List),
@@ -38,6 +36,7 @@ List copy := method(
 List applyLambda := method(lambda,
   sym := self first
   new_lambda := self second copy
+  writeln("new_lambda: " .. new_lambda)
   new_lambda rewrite(sym, lambda)
   new_lambda
 )
@@ -56,7 +55,7 @@ SymbolList := List clone do(
   )
   
   copy := method(
-    self with(self)
+    SymbolList with(self)
   )
   
   /*
