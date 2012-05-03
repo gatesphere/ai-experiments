@@ -58,12 +58,38 @@ SymbolList := List clone do(
   copy := method(
     self with(self)
   )
+  
+  /*
+  applyLambda := method(lambda,
+    writeln("SymbolList applying lambda")
+    self
+  )
+  
+  rewrite := method(a, b,
+    writeln("SymbolList rewriting lambda: (#{a} to #{b})" interpolate)
+    retval := self copy 
+    retval foreach(i, x, 
+      writeln(i)
+      writeln(x)
+      if(x == a, 
+        writeln(x == a)
+        retval atPut(i, b)
+        ,
+        continue
+      )
+    )
+    retval
+  )
+  */
 )
 
 // tests
 one := {:s, {:z, [:s, :z] } }
 two := {:s, {:z, [:s, [:s, :z] ] } }
 succ := {:w, {:y, {:x, [:y, [:w, :y, :x] ] } } }
+t := {:a, {:b, [:a]}}
+f := {:a, {:b, [:b]}}
+
 
 writeln("one: " .. one)
 writeln("two: " .. two)
