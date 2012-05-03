@@ -8,7 +8,9 @@
 squareBrackets := method(self apply(call argAt(0)))
 curlyBrackets := method(
   if(call argCount == 1,
-    Lambda with(nil, Lambda expand(call argAt(0)))
+    l := Lambda expand(call argAt(0))
+    if(l == nil, Lambda value(call argAt(0)), Lambda value(l))
+    Lambda value(Lambda expand(call argAt(0)))
     ,
     Lambda with(call argAt(0), Lambda expand(call argAt(1)))
   )
@@ -24,7 +26,14 @@ Lambda := Object clone do(
   )
   
   with := method(arg, map,
+    arg = arg asString
+    map = map asString
     self clone setArg(arg) setMap(map)
+  )
+  
+  value := method(map,
+    map = map asString
+    self clone setArg(nil) setMap(map)
   )
   
   asCode := method(
@@ -54,7 +63,14 @@ Lambda := Object clone do(
     //writeln("expanded " .. message .. " to " .. m .. " exception: " .. ex)
     m
   )
-    
+  
+  replace := method(a, b,
+    if(self arg == a, self setArg(b))
+    newMap := doString(self map asCode asMutable replaceSeq(a, b))
+    self setMap(newMap)
+    self
+  )
+  
   apply := method(lambda,
     // tbd
     writeln(self .. " applying " .. lambda)
@@ -66,6 +82,7 @@ Lambda := Object clone do(
 t := {x, {y, x}}
 f := {x, {y, y}}
 
+/*
 zero := {s, {z, z}}
 one := {s, {z, s[z]}}
 two := {s, {z, s[s[z]]}}
@@ -83,3 +100,4 @@ writeln
 writeln("attempting to multiply: 2*2 == two[two]")
 writeln(two[two])
 writeln
+*/
