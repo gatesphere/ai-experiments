@@ -35,17 +35,19 @@ List copy := method(
 )
 
 List applyLambda := method(lambda,
+  writeln("applyLambda call: " .. self .. " <= " .. lambda)
   sym := self first
   new_lambda := self second copy
-  writeln("new_lambda: " .. new_lambda)
+  writeln(" pre rewrite: new_lambda(" .. new_lambda type .. "): " .. new_lambda)
   new_lambda rewrite(sym, lambda)
+  writeln(" post rewrite: new_lambda(" .. new_lambda type .. "): " .. new_lambda)
   new_lambda
 )
 
 // destructive
 List reduceBrackets := method(
   self foreach(i, x,
-    if(x isKindOf(SymbolList) and x size <= 1,
+    if(x type == "SymbolList" and x size <= 1,
       self atPut(i, x first)
     )
   )
@@ -54,15 +56,16 @@ List reduceBrackets := method(
 
 List betaReduce := method(
   self foreach(i, x,
-    if(x isKindOf(SymbolList),
-      writeln("b-reduce: " .. x)
+    writeln("  b-reduce(" .. i .. "): " .. x)
+    //if(x type == "SymbolList",
+    if(x isKindOf(List),
       self atPut(i, x betaReduce)
     )
   )
 )
   
 
-SymbolList := List clone do(
+SymbolList := List clone do(  
   asString := method(
     "[ " .. self join(", ") .. " ]"
   )
@@ -84,21 +87,32 @@ SymbolList := List clone do(
   )
   
   betaReduce := method(
+    writeln("    b-reduce: " .. self)
     n := self copy
     m := nil
+    writeln("    size: " .. n size)
     if(n size > 1,
+      n foreach(i, x,
+        if(x isKindOf(List),
+          n atPut(i, x betaReduce)
+          break;
+        )
+      )
       if(n first isKindOf(List),
         m = n first applyLambda(n second)
       )
+      
+      /*
       if(n size > 2,
         writeln("++++ LARGE")
-        for(i, 2, n size,
-          m append n at(i)
+        for(i, 2, m size,
+          n append m at(i)
         )
       )
+      */
     )
-    //m reduceBrackets
-    m
+    if(m == nil, m = n)
+    m reduceBrackets
   )
   
   /*
@@ -126,24 +140,24 @@ SymbolList := List clone do(
 )
 
 // tests
-one := {:s, {:z, [:s, :z] } }
+//one := {:s, {:z, [:s, :z] } }
 two := {:s, {:z, [:s, [:s, :z] ] } }
 succ := {:w, {:y, {:x, [:y, [:w, :y, :x] ] } } }
-t := {:a, {:b, [:a]}}
-f := {:a, {:b, [:b]}}
+//t := {:a, {:b, [:a]}}
+//f := {:a, {:b, [:b]}}
 
 
-writeln("one: " .. one)
-writeln("two: " .. two)
+//writeln("one: " .. one)
+//writeln("two: " .. two)
 two rewrite(:s, :a) rewrite(:z, :b)
-writeln("two, rewritten: " .. two)
-writeln("succ: " .. succ)
+//writeln("two, rewritten: " .. two)
+//writeln("succ: " .. succ)
 
-t := {:x, {:y, [:x]}}
-f := {:x, {:y, [:y]}}
+//t := {:x, {:y, [:x]}}
+//f := {:x, {:y, [:y]}}
 
-i := {:i, [:i]}
-writeln("i: " .. i)
+//i := {:i, [:i]}
+//writeln("i: " .. i)
 //writeln("i reduceBrackets: " .. i reduceBrackets)
 
 /*
@@ -153,6 +167,10 @@ writeln("id: one second second: " .. one second second uniqueId)
 writeln("id: one second second second: " .. one second second second uniqueId)
 */
 
-writeln("one applyLambda(succ): " .. one applyLambda(succ))
-writeln("one: " .. one)
-writeln("one applyLambda(succ) applyLambda(two): " .. one applyLambda(succ) applyLambda(two))
+//writeln("one applyLambda(succ): " .. one applyLambda(succ))
+//writeln("one: " .. one)
+//writeln("one applyLambda(succ) applyLambda(two): " .. one applyLambda(succ) applyLambda(two))
+
+writeln("\n-----------------")
+s2 := succ applyLambda(two)
+//three := one applyLambda(succ) applyLambda(two)
